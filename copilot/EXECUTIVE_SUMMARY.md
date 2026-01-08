@@ -279,9 +279,9 @@ DASHBOARD KPIs:
 └─ Recovery Efficiency: 89%
 
 DCA PERFORMANCE:
-├─ DCA_A: 45 Cases, ₹12Cr Portfolio, 78% Recovery Rate
-├─ DCA_B: 52 Cases, ₹14Cr Portfolio, 85% Recovery Rate
-└─ DCA_C: 38 Cases, ₹10Cr Portfolio, 71% Recovery Rate
+├─ DCA Agent 1: 45 Cases, ₹12Cr Portfolio, 78% Recovery Rate
+├─ DCA Agent 2: 52 Cases, ₹14Cr Portfolio, 85% Recovery Rate
+└─ DCA Agent 3: 38 Cases, ₹10Cr Portfolio, 71% Recovery Rate
 
 RISK BREAKDOWN:
 ├─ 🔴 CRITICAL: 24 Cases, ₹8 Crore

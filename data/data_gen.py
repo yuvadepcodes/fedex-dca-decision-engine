@@ -8,7 +8,7 @@ def generate_nexus_data(n=20):
 
     business_types = ["Small", "Medium", "Enterprise"]
     dispute_statuses = ["None", "Open", "Resolved"]
-    dcas = ["DCA_A", "DCA_B", "DCA_C"]
+    dcas = ["DCA Agent 1", "DCA Agent 2", "DCA Agent 3"]
 
     data = []
     for i in range(n):

@@ -30,7 +30,11 @@ timestamp,case_id,action,details,user
 2026-01-08 18:43:22.019995,CASE_19,NUDGE_DCA,Auto reminder sent,
 2026-01-08 18:43:22.027617,CASE_20,NUDGE_DCA,Auto reminder sent,
 2026-01-08 18:48:44.019548,CASE_22,Enterprise Added,,FedEx Admin
-2026-01-08 18:50:53.137011,CASE_22,Assigned to DCA_A,,FedEx Admin
+2026-01-08 18:50:53.137011,CASE_22,Assigned to DCA Agent 1,,FedEx Admin
 2026-01-08 19:08:53.533010,CASE_23,Enterprise Added,,FedEx Admin
 2026-01-08 19:12:52.021552,CASE_24,Enterprise Added,,FedEx Admin
 2026-01-08 20:20:22.526946,CASE_25,Case Created,,FedEx Admin
+2026-01-09 00:23:58.177083,CASE_76,Assigned to UNASSIGNED,,FedEx Admin
+2026-01-09 00:24:05.263618,CASE_76,Assigned to DCA Agent 2,,FedEx Admin
+2026-01-09 00:24:50.518663,CASE_76,Status Updated to CLOSED,"THE PARTY HAVE ACCEPTED THE DEAL
+",DCA Agent

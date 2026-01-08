@@ -607,6 +607,8 @@ with st.sidebar:
             st.session_state.page = "dashboard"
         if st.button("➕ Add New Case", use_container_width=True):
             st.session_state.page = "add"
+        if st.button("📝 Assign Case", use_container_width=True):
+            st.session_state.page = "assign"
         if st.button("📋 Case Workflow", use_container_width=True):
             st.session_state.page = "workflow"
         if st.button("👥 DCA Performance", use_container_width=True):
@@ -619,6 +621,7 @@ with st.sidebar:
             st.session_state.page = "live_updates"
         if st.button("🔍 Audit Trail", use_container_width=True):
             st.session_state.page = "audit"
+        
         if st.button("🗂️ Database", use_container_width=True):
             st.session_state.page = "database"
     
@@ -922,6 +925,13 @@ if st.session_state.page == "add":
             ageing = st.number_input("Ageing Days", min_value=1)
             business_type = st.selectbox("Business Type", ["Enterprise", "Large", "Medium", "Small"])
             dispute_status = st.selectbox("Dispute Status", ["None", "Open", "Pending_Resolution"])
+            # Populate DCA options from existing data; fallback to UNASSIGNED
+            try:
+                dca_opts = [d for d in sorted(df['assigned_dca'].dropna().unique().tolist()) if d != ""]
+            except Exception:
+                dca_opts = []
+            dca_options = ["UNASSIGNED"] + [d for d in dca_opts if d not in ["UNASSIGNED"]]
+            assigned_dca = st.selectbox("Assign to DCA (optional)", options=dca_options, index=0)
             submit = st.form_submit_button("Save")
 
             if submit:
@@ -932,7 +942,7 @@ if st.session_state.page == "add":
                     "invoice_amount": amount,
                     "business_type": business_type,
                     "dispute_status": dispute_status,
-                    "assigned_dca": "UNASSIGNED",
+                    "assigned_dca": assigned_dca,
                     "last_dca_update_days": 0,
                     "sla_status": "OK",
                     "status": "ACTIVE",
@@ -942,7 +952,33 @@ if st.session_state.page == "add":
                 # Persist and log only when the form is submitted
                 save_data(df)
                 log_audit(new_case["case_id"], "Case Created", role)
+                if assigned_dca and assigned_dca != "UNASSIGNED":
+                    log_audit(new_case["case_id"], f"Assigned to {assigned_dca}", role)
                 st.success("✅ Case added successfully!")
+
+# ================= ASSIGN CASE PAGE =================
+elif st.session_state.page == "assign":
+    if check_access(["FedEx Admin"]):
+        st.title("📝 Assign Case to DCA")
+
+        with st.form("assign_case_form"):
+            case_id_input = st.text_input("Case ID to assign")
+            try:
+                dca_opts = [d for d in sorted(df['assigned_dca'].dropna().unique().tolist()) if d != ""]
+            except Exception:
+                dca_opts = []
+            dca_options = ["UNASSIGNED"] + [d for d in dca_opts if d not in ["UNASSIGNED"]]
+            assign_to = st.selectbox("Assign to DCA", options=dca_options, index=0)
+            assign_submit = st.form_submit_button("Assign")
+
+            if assign_submit:
+                if case_id_input and case_id_input in df['case_id'].values:
+                    df.loc[df['case_id'] == case_id_input, 'assigned_dca'] = assign_to
+                    save_data(df)
+                    log_audit(case_id_input, f"Assigned to {assign_to}", st.session_state.get('user_role', 'FedEx Admin'))
+                    st.success(f"✅ {case_id_input} assigned to {assign_to}")
+                else:
+                    st.error("Case not found. Please verify the Case ID.")
 
 # ================= WORKFLOW MANAGEMENT =================
 elif st.session_state.page == "workflow":

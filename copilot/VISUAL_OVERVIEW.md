@@ -93,7 +93,7 @@ SIDEBAR NAVIGATION:
 │  │ Customer: Acme Inc               │                             │
 │  │ Invoice: ₹50,00,000              │                             │
 │  │ Ageing: 145 days                 │                             │
-│  │ Assigned DCA: DCA_A              │                             │
+│  │ Assigned DCA: DCA Agent 1              │                             │
 │  │ Recovery Probability: 82%        │                             │
 │  │ SLA Status: 🔴 AT_RISK          │                             │
 │  └──────────────────────────────────┘                             │
@@ -137,14 +137,14 @@ SIDEBAR NAVIGATION:
 │  ┌──────┬────────┬──────────┬──────────┬──────┬──────┬────────────┐
 │  │ DCA  │ Cases  │Portfolio │Expected  │Aging │Prob% │Efficiency%│
 │  ├──────┼────────┼──────────┼──────────┼──────┼──────┼────────────┤
-│  │DCA_A │ 45     │ ₹12Cr    │ ₹9.5Cr   │ 78d  │ 79%  │  79.2%    │
-│  │DCA_B │ 52     │ ₹14Cr    │ ₹11.9Cr  │ 72d  │ 85%  │  85.0%    │  ← Top
-│  │DCA_C │ 38     │ ₹10Cr    │ ₹7.1Cr   │ 88d  │ 71%  │  71.0%    │
+│  │DCA Agent 1 │ 45     │ ₹12Cr    │ ₹9.5Cr   │ 78d  │ 79%  │  79.2%    │
+│  │DCA Agent 2 │ 52     │ ₹14Cr    │ ₹11.9Cr  │ 72d  │ 85%  │  85.0%    │  ← Top
+│  │DCA Agent 3 │ 38     │ ₹10Cr    │ ₹7.1Cr   │ 88d  │ 71%  │  71.0%    │
 │  └──────┴────────┴──────────┴──────────┴──────┴──────┴────────────┘
 │                                                                     │
 │  INDIVIDUAL AGENT DEEP DIVE                                        │
 │  ──────────────────────────                                        │
-│  Select Agent: [DCA_B ▼]                                          │
+│  Select Agent: [DCA Agent 2 ▼]                                          │
 │                                                                     │
 │  METRICS                                                           │
 │  ───────                                                           │
@@ -221,7 +221,7 @@ SIDEBAR NAVIGATION:
 │  FILTERS                                                           │
 │  ───────                                                           │
 │  Action Type: [Case Created] [Status Updated] [Assigned to DCA]   │
-│  User: [FedEx Admin] [DCA_A] [DCA_B] [DCA_C] [Compliance Officer]│
+│  User: [FedEx Admin] [DCA Agent 1] [DCA Agent 2] [DCA Agent 3] [Compliance Officer]│
 │  Date Range: Last [30 ▼] Days                                     │
 │                                                                     │
 │  FULL AUDIT LOG                                                    │
@@ -233,9 +233,9 @@ SIDEBAR NAVIGATION:
 │  │ 14:32:15       │      │              │          │ ₹50Lak      │
 │  ├────────────────┼──────┼──────────────┼──────────┼──────────────┤
 │  │ 2026-01-08     │C001  │ Assigned to  │ Admin    │ Optimal      │
-│  │ 14:35:22       │      │ DCA_A        │          │ allocation  │
+│  │ 14:35:22       │      │ DCA Agent 1        │          │ allocation  │
 │  ├────────────────┼──────┼──────────────┼──────────┼──────────────┤
-│  │ 2026-01-08     │C001  │ Status       │ DCA_A    │ Escalating   │
+│  │ 2026-01-08     │C001  │ Status       │ DCA Agent 1    │ Escalating   │
 │  │ 15:10:45       │      │ Updated to   │          │ due to aging │
 │  │                │      │ ESCALATED    │          │              │
 │  └────────────────┴──────┴──────────────┴──────────┴──────────────┘

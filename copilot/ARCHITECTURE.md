@@ -288,7 +288,7 @@ invoice_amount         (Float)     - Amount in ₹
 ageing_days            (Int)       - Days in system
 business_type          (String)    - Enterprise/Large/Medium/Small
 dispute_status         (String)    - None/Open/Pending/Resolved
-assigned_dca           (String)    - DCA_A, DCA_B, etc
+assigned_dca           (String)    - DCA Agent 1, DCA Agent 2, DCA Agent 3
 last_dca_update_days   (Int)       - Days since last update
 sla_status             (String)    - OK/AT_RISK/BREACHED
 status                 (String)    - ACTIVE/PENDING_REVIEW/ESCALATED/CLOSED
