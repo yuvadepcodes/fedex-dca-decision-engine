@@ -560,6 +560,13 @@ df = apply_scoring(df)  # Apply new ML scoring
 df["sla_status"] = df.apply(lambda r: calculate_sla_status(r.get("created_date"), r["ageing_days"]), axis=1)
 df["priority_score"] = df["recovery_score"] * df["invoice_amount"]
 
+# ================= TOP BANNER SIGNATURE =================
+st.markdown("""
+<div style="display: flex; justify-content: flex-end; padding: 8px 0; margin-bottom: 20px;">
+    <span style="font-size: 28px; font-weight: 900; letter-spacing: 3px; background: linear-gradient(90deg, #4D148C, #FF6600); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-right: 5px;">YUV</span>
+</div>
+""", unsafe_allow_html=True)
+
 # ================= SIDEBAR LOGO =================
 with st.sidebar:
     # Professional logo section
@@ -663,7 +670,7 @@ with home_col2:
 # ================= HANDLE QUERY PARAM =================
 query_params = st.query_params
 if "page" in query_params:
-    st.session_state.page = query_params["page"]
+    st.session_state.page = query_params["page"] 
 
 # ================= ROLE-BASED ACCESS CONTROL =================
 def check_access(required_roles):
@@ -1662,3 +1669,11 @@ if st.session_state.page == "database":
     if check_access(["FedEx Admin"]):
         st.title("Complete Dataset")
         st.dataframe(df, use_container_width=True, height=600)
+
+# ================= FOOTER SIGNATURE =================
+st.divider()
+st.markdown("""
+<div style="text-align: center; color: #888; font-size: 12px; margin-top: 40px;">
+    <p>© 2026 yuvadep.codes@gmail.com | FedEx DCA Intelligence Hub</p>
+</div>
+""", unsafe_allow_html=True)
