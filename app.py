@@ -1,139 +1,201 @@
 import streamlit as st
 import pandas as pd
 import os
-from models.scoring import apply_scoring  # Make sure scoring.py exists
+from models.scoring import apply_scoring
 
 # --------------------------
-# Sidebar Role Toggle
+# Page Config (RECTANGULAR)
 # --------------------------
+st.set_page_config(layout="wide")
+
+# --------------------------
+# Page + Role State
+# --------------------------
+if "page" not in st.session_state:
+    st.session_state.page = "Dashboard"
+
 if "role" not in st.session_state:
     st.session_state.role = "FedEx Admin"
 
+# --------------------------
+# Sidebar
+# --------------------------
+st.sidebar.title("FedEx DCA System")
 role = st.sidebar.radio("Select Role", ["FedEx Admin", "DCA Agent"])
 st.session_state.role = role
 
 # --------------------------
 # Load Data
 # --------------------------
-if not os.path.exists("data/nexus_accounts.csv"):
-    st.error("CSV not found. Generate nexus_accounts.csv first!")
+CSV_PATH = "data/nexus_accounts.csv"
+
+if not os.path.exists(CSV_PATH):
+    st.error("CSV not found. Generate nexus_accounts.csv first.")
     st.stop()
 
-df = pd.read_csv("data/nexus_accounts.csv")
+df = pd.read_csv(CSV_PATH)
 
-# Ensure numeric columns
+# Type safety
 df["ageing_days"] = df["ageing_days"].astype(int)
 df["invoice_amount"] = df["invoice_amount"].astype(float)
 df["last_dca_update_days"] = df["last_dca_update_days"].astype(int)
 
-# Apply scoring model
+# Apply AI scoring
 df = apply_scoring(df)
-# Keep only top-priority cases (recovery_score > 0.6)
+
+# Top-priority queue
 df_view = df[df["recovery_score"] > 0.6]
 
 # --------------------------
-# Helper: generate new CASE_ID
+# Utilities
 # --------------------------
 def get_new_case_id(df):
-    numeric_ids = []
+    nums = []
     for cid in df["case_id"]:
         try:
-            num = int(str(cid).split("_")[1])
-            numeric_ids.append(num)
+            nums.append(int(cid.split("_")[1]))
         except:
-            continue
-    return f"CASE_{max(numeric_ids, default=0) + 1}"
+            pass
+    return f"CASE_{max(nums, default=0) + 1}"
 
 # --------------------------
-# Dashboard Function
+# Top Right Navigation
+# --------------------------
+col1, col2, col3 = st.columns([8, 1, 1])
+with col3:
+    if st.button("📊 View Database"):
+        st.session_state.page = "Database"
+
+# --------------------------
+# Dashboard
 # --------------------------
 def show_dashboard(df_view):
-    st.subheader("Daily Action Queue")
-    
-    # Tabs for Assigned / In Progress
+    st.markdown("## Daily Action Queue")
+
     tab1, tab2 = st.tabs(["Assigned", "In Progress"])
-    
+
     with tab1:
-        assigned = df_view[(df_view["status"]=="ACTIVE") & (df_view["last_dca_update_days"] <= 2)]
-        st.dataframe(assigned, use_container_width=True)
+        assigned = df_view[df_view["last_dca_update_days"] <= 2]
+        st.dataframe(assigned, use_container_width=True, height=420)
 
     with tab2:
-        in_progress = df_view[(df_view["status"]=="ACTIVE") & (df_view["last_dca_update_days"] > 2)]
-        st.dataframe(in_progress, use_container_width=True)
+        in_progress = df_view[df_view["last_dca_update_days"] > 2]
+        st.dataframe(in_progress, use_container_width=True, height=420)
 
     # --------------------------
-    # Admin-only: Add Enterprise
+    # Admin Controls
     # --------------------------
-    if role == "FedEx Admin":
+    if st.session_state.role == "FedEx Admin":
+
         st.markdown("---")
-        st.subheader("Add New Enterprise")
-        with st.form("add_enterprise_form"):
-            customer_name = st.text_input("Customer Name")
-            invoice_amount = st.number_input("Invoice Amount (INR)", min_value=1000)
-            ageing_days = st.number_input("Ageing Days", min_value=0)
-            dispute_status = st.selectbox("Dispute Status", ["None","Open","Resolved"])
-            submitted = st.form_submit_button("Add Enterprise")
+        st.markdown("## Add New Enterprise")
 
-            if submitted:
-                df = pd.read_csv("data/nexus_accounts.csv")
-                new_case_id = get_new_case_id(df)
+        with st.form("add_enterprise"):
+            c1, c2, c3, c4 = st.columns(4)
+            with c1:
+                customer_name = st.text_input("Customer Name")
+            with c2:
+                invoice_amount = st.number_input("Invoice Amount (INR)", min_value=1000)
+            with c3:
+                ageing_days = st.number_input("Ageing Days", min_value=0)
+            with c4:
+                dispute_status = st.selectbox("Dispute Status", ["None", "Open", "Resolved"])
+
+            submit = st.form_submit_button("Add Enterprise")
+
+            if submit:
+                df_all = pd.read_csv(CSV_PATH)
                 new_row = {
-                    "case_id": new_case_id,
+                    "case_id": get_new_case_id(df_all),
                     "customer_name": customer_name,
+                    "ageing_days": ageing_days,
                     "invoice_amount": invoice_amount,
                     "business_type": "Enterprise",
-                    "ageing_days": ageing_days,
                     "dispute_status": dispute_status,
-                    "sla_status": "OK",
-                    "last_dca_update_days": 0,
                     "assigned_dca": "",
+                    "last_dca_update_days": 0,
+                    "sla_status": "OK",
                     "status": "ACTIVE"
                 }
-                df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-                df.to_csv("data/nexus_accounts.csv", index=False)
-                st.success(f"Enterprise '{customer_name}' added!")
+                df_all = pd.concat([df_all, pd.DataFrame([new_row])], ignore_index=True)
+                df_all.to_csv(CSV_PATH, index=False)
+                st.success("Enterprise added successfully")
 
         # --------------------------
-        # Admin-only: Assign DCA manually
+        # Assign DCA
         # --------------------------
         st.markdown("---")
-        st.subheader("Assign DCA Agent to Enterprise")
-        df = pd.read_csv("data/nexus_accounts.csv")
+        st.markdown("## Assign DCA Agent")
 
-        selected_case_id = st.text_input("Enter Case ID (e.g., CASE_5)")
+        df_all = pd.read_csv(CSV_PATH)
 
-        if selected_case_id:
-            if selected_case_id in df["case_id"].values:
-                selected_case = df[df["case_id"] == selected_case_id].iloc[0]
-                st.markdown(f"**Customer:** {selected_case['customer_name']} | "
-                            f"{selected_case['business_type']} | "
-                            f"INR {selected_case['invoice_amount']} | "
-                            f"Dispute: {selected_case['dispute_status']} | "
-                            f"Assigned DCA: {selected_case['assigned_dca'] or 'None'}")
+        c1, c2 = st.columns([2, 1])
+        with c1:
+            case_id_input = st.text_input("Enter Case ID (e.g. CASE_12)")
+        with c2:
+            agent = st.selectbox("Assign to DCA", ["DCA_A", "DCA_B", "DCA_C"])
 
-                agent = st.selectbox("Assign to DCA Agent", ["DCA_A", "DCA_B", "DCA_C"])
+        if case_id_input:
+            if case_id_input in df_all["case_id"].values:
+                case = df_all[df_all["case_id"] == case_id_input].iloc[0]
 
-                if st.button("Assign DCA"):
-                    df.loc[df["case_id"] == selected_case_id, "assigned_dca"] = agent
-                    df.to_csv("data/nexus_accounts.csv", index=False)
-                    st.success(f"{selected_case_id} assigned to {agent}")
+                st.markdown(
+                    f"""
+                    **Customer:** {case.get('customer_name','')}  
+                    **Amount:** INR {case['invoice_amount']}  
+                    **Business:** {case['business_type']}  
+                    **Current DCA:** {case['assigned_dca'] or 'Unassigned'}
+                    """
+                )
 
+                if st.button("Assign"):
+                    df_all.loc[df_all["case_id"] == case_id_input, "assigned_dca"] = agent
+                    df_all.to_csv(CSV_PATH, index=False)
+                    st.success(f"{case_id_input} assigned to {agent}")
             else:
-                st.warning("Case ID not found in the system.")
+                st.warning("Invalid Case ID")
 
 # --------------------------
 # DCA Dashboard
 # --------------------------
 def show_dca_dashboard(df_view):
-    dca_name = st.selectbox("Select Your Name", ["DCA_A","DCA_B","DCA_C"])
-    df_view = df_view[df_view["assigned_dca"] == dca_name]
-    st.subheader(f"{dca_name} - Your Daily Action Queue")
-    st.dataframe(df_view, use_container_width=True)
+    dca = st.selectbox("Select DCA", ["DCA_A", "DCA_B", "DCA_C"])
+    df_dca = df_view[df_view["assigned_dca"] == dca]
+    st.markdown(f"## {dca} – Assigned Cases")
+    st.dataframe(df_dca, use_container_width=True, height=420)
 
 # --------------------------
-# Page Routing
+# Database Page
 # --------------------------
-if role == "FedEx Admin":
-    show_dashboard(df_view)
+def show_database_page():
+    st.markdown("## 📁 Nexus Master Database")
+
+    df_all = pd.read_csv(CSV_PATH)
+
+    c1, c2 = st.columns(2)
+    with c1:
+        dca_filter = st.selectbox("Filter by DCA", ["All"] + sorted(df_all["assigned_dca"].unique()))
+    with c2:
+        status_filter = st.selectbox("Filter by Status", ["All"] + sorted(df_all["status"].unique()))
+
+    if dca_filter != "All":
+        df_all = df_all[df_all["assigned_dca"] == dca_filter]
+    if status_filter != "All":
+        df_all = df_all[df_all["status"] == status_filter]
+
+    st.dataframe(df_all, use_container_width=True, height=500)
+
+    st.markdown("---")
+    if st.button("⬅ Back to Dashboard"):
+        st.session_state.page = "Dashboard"
+
+# --------------------------
+# Router
+# --------------------------
+if st.session_state.page == "Database":
+    show_database_page()
 else:
-    show_dca_dashboard(df_view)
+    if st.session_state.role == "FedEx Admin":
+        show_dashboard(df_view)
+    else:
+        show_dca_dashboard(df_view)
