@@ -404,7 +404,7 @@ MIT License - See [LICENSE](LICENSE) file for details
 
 - **Issues**: Create GitHub issue for bugs/features
 - **Questions**: Open a discussion
-- **Demo**: Visit live app at [streamlit.app](https://fedex-dca-decision-engine.streamlit.app)
+- **Demo**: Visit live app at (https://fedex-dca-decision-engine.streamlit.app)
 
 ---
 
