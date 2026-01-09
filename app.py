@@ -69,7 +69,9 @@ def calculate_sla_status(case_date, days_in_system):
         return "AT_RISK"
     else:
         return "OK"
-    st.markdown("""
+
+# ================= APPLY CUSTOM CSS STYLING =================
+st.markdown("""
 <style>
 html, body, [class*="css"] {
     font-family: 'Segoe UI', Inter, sans-serif;
