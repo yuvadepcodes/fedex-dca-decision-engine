@@ -1676,6 +1676,6 @@ if st.session_state.page == "database":
 st.divider()
 st.markdown("""
 <div style="text-align: center; color: #888; font-size: 12px; margin-top: 40px;">
-    <p>© 2026 yuvadep.codes@gmail.com | FedEx DCA Intelligence Hub</p>
+    <p>© 2026  yuvadep.codes@gmail.com | FedEx DCA Intelligence Hub</p>
 </div>
 """, unsafe_allow_html=True)
